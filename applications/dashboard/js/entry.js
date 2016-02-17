@@ -65,10 +65,23 @@ jQuery(document).ready(function($) {
                         gdn.informError(xhr, true)
                     },
                     success: function(text) {
-                        if (text == 'TRUE')
+                        if (text == 'TRUE') {
                             $('#ConnectPassword').hide();
-                        else
-                            $('#ConnectPassword').show();
+                        } else {
+                            // If the username is not available, and the client does not want users to take over existing accounts, generate an error message and empty the input field.
+                            if(gdn.definition('NoConnectName', true)) {
+                                // if there is already an error message on the page, overwrite it with this error message, else inject an error message
+                                if($(".Messages.Errors").length) {
+                                    $(".Messages.Errors").html("<ul><li>The name " + $('#Form_ConnectName').val() + " is not available please choose another name.</li></ul>");
+                                } else {
+                                    $('#Form_ConnectName').closest('form').prepend("<div class='Messages Errors'><ul><li>The name " + $('#Form_ConnectName').val() + " is not available please choose another name.</li></ul></div>");
+                                }
+                                $('#Form_ConnectName').val("");
+                                
+                            } else {
+                                $('#ConnectPassword').show();
+                            }
+                        }
                     }
                 });
             } else {
