@@ -1,5 +1,12 @@
 // This file contains javascript that is specific to the dashboard/entry controller.
 jQuery(document).ready(function($) {
+    $(window).keydown(function(event){
+        if(event.keyCode == 13 && gdn.definition('ForceCreateConnectName', false)) {
+            event.preventDefault();
+            checkConnectName();
+            return false;
+        }
+    });
 
     // Check to see if the selected email is valid
     $('#Register input[name$=Email], body.register input[name$=Email]').blur(function() {
@@ -69,15 +76,10 @@ jQuery(document).ready(function($) {
                             $('#ConnectPassword').hide();
                         } else {
                             // If the username is not available, and the client does not want users to take over existing accounts, generate an error message and empty the input field.
-                            if(gdn.definition('NoConnectName', true)) {
-                                // if there is already an error message on the page, overwrite it with this error message, else inject an error message
-                                if($(".Messages.Errors").length) {
-                                    $(".Messages.Errors").html("<ul><li>The name " + $('#Form_ConnectName').val() + " is not available please choose another name.</li></ul>");
-                                } else {
-                                    $('#Form_ConnectName').closest('form').prepend("<div class='Messages Errors'><ul><li>The name " + $('#Form_ConnectName').val() + " is not available please choose another name.</li></ul></div>");
-                                }
+                            if(gdn.definition('NoConnectName', true) && gdn.definition('ForceCreateConnectName', false)) {
+                                // if there is already an error message on the page, overwrite it with this error message, else inject an error message.
+                                displayErrorMessage($('#Form_ConnectName').val());
                                 $('#Form_ConnectName').val("");
-                                
                             } else {
                                 $('#ConnectPassword').show();
                             }
@@ -89,6 +91,17 @@ jQuery(document).ready(function($) {
             }
         } else {
             $('#ConnectPassword').show();
+        }
+    }
+
+    var displayErrorMessage = function(name) {
+        var msg = gdn.getMeta('duplicateUsernameError', 'The name %n is not available please choose another name.');
+        msg = msg.replace(/%n/g, name);
+
+        if($(".Messages.Errors").length) {
+            $(".Messages.Errors").html("<ul><li>" + msg + "</li></ul>");
+        } else {
+            $('#Form_ConnectName').closest('form').prepend("<div class='Messages Errors'><ul><li>" + msg + "</li></ul></div>");
         }
     }
 
